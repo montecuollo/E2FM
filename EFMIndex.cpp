@@ -402,6 +402,8 @@ void EFMIndex::buildInMemory(string &originalText) {
 			 markedRowsBuckets[it->second]=it->first/bucketSize;
 			 //cout << it->first << "," << it->second*markingRate << endl;
 		}
+		if (computeStatistics)
+			statistics->numberOfMarkedRows=textLength/markingRate + 1;
 	}
 
 	remapBWT();
@@ -1042,7 +1044,8 @@ void EFMIndex::writeHeader(){
 		statistics->alphabetSize=(uint32_t) pow((double)originalSymbols.size(), (double)superAlphabet->order);
 		statistics->compactAlphabetSize=compactAlphabetSize;
 		statistics->headerBitmapSize=bitsetToStore->size();
-		statistics->headerOccurrencesTableSize=neededBits*compactAlphabetSize;
+		statistics->headerOccurrencesTableSize=ceil(Utils::int_log2(precedingCharactersOccurrences[compactAlphabetSize])) *compactAlphabetSize;
+		statistics->headerMarkedRowsTableSize=(int)ceil(Utils::int_log2(bucketsNumber-1))*markedRows->size();
 		statistics->buckets=bucketsNumber;;
 		statistics->superbuckets=superBucketsNumber;
 	}
@@ -1480,8 +1483,11 @@ inline void EFMIndex::checkBucketLoaded(BitReader *bitReader,uint64_t bn){
 
 
 void EFMIndex::writeBuckets(){
-		for (uint64_t currentBucket=0;currentBucket<bucketsNumber;currentBucket++)
+		for (uint64_t currentBucket=0;currentBucket<bucketsNumber;currentBucket++){
 			buckets[currentBucket]->write(bitWriter);
+			if (computeStatistics)
+				statistics->bucketAverageCompressedLength+=buckets[currentBucket]->compressedLength;
+		}
 }
 
 
@@ -2285,7 +2291,7 @@ vector<uint64_t> *EFMIndex::locateOccurrences(vector<Match*> *matches){
 		if  (occs->size()>1)
 			sort(occs->begin(),occs->end());
 
-		//TODO: capire perchè a volte vengono ritornate due posizioni uguali
+
 		//Il codice seguente è stato aggiunto per fixare la PCR prima della presentazione del
 		//progetto di ricerca 2013
 		for (int64_t i=occs->size()-1;i>0;i--)
@@ -2497,6 +2503,7 @@ void EFMIndex::initializeStatistics(uint64_t originalTextLength) {
 	}
 	statistics=new Statistics();
 	statistics->originalTextLength=originalTextLength;
+	statistics->numberOfMarkedRows=0;
 	statistics->superbucketAlphabetAverageSize=0;
 	statistics->superbucketBitmapsCumulativeSize=0;
 	statistics->superbucketOccurrencesTablesCumulativeSize=0;
@@ -2504,6 +2511,8 @@ void EFMIndex::initializeStatistics(uint64_t originalTextLength) {
 	statistics->bucketBitmapsCumulativeSize=0;
 	statistics->bucketOccurrencesTablesCumulativeSize=0;
 	statistics->bucketMarkedRowsTablesCumulativeSize=0;
+	statistics->bucketAverageCompressedLength=0;
+	statistics->bucketAverageNumberOfMarkedRows=0;
 }
 
 
@@ -2517,7 +2526,9 @@ void EFMIndex::finalizeStatistics() {
 	statistics->bucketBitmapAverageSize=statistics->bucketBitmapsCumulativeSize/bucketsNumber;
 	statistics->bucketOccurrencesTableAverageSize=statistics->bucketOccurrencesTablesCumulativeSize/bucketsNumber;
 	statistics->bucketMarkedRowsTableAverageSize=statistics->bucketMarkedRowsTablesCumulativeSize/bucketsNumber;
-
+	statistics->bucketAverageCompressedLength =statistics->bucketAverageCompressedLength/bucketsNumber;
+	statistics->bucketAverageNumberOfMarkedRows=statistics->bucketAverageNumberOfMarkedRows/bucketsNumber;
+	statistics->bucketMarkedRowsArrayAverageSize=statistics->bucketMarkedRowsArrayAverageSize/bucketsNumber;
 }
 
 

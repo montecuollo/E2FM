@@ -135,6 +135,12 @@ void Bucket::write(BitWriter *bitWriter){
 	for (uint64_t i=0;i<bitsetToStore->size();i++)
 			bitWriter->write(1, (*bitsetToStore)[i]);
 
+
+	if (index->computeStatistics){
+		index->statistics->bucketBitmapsCumulativeSize+=bitsetToStore->size();
+	}
+
+
 	//if necessary, writes a bit set identifying the marked row positions in this bucket
 	if (index->markedRowsPercentage>0){
 		  uint64_t bl=length;
@@ -173,6 +179,11 @@ void Bucket::write(BitWriter *bitWriter){
 	   markedRowsArrayStartPosition=bitWriter->getBookmark()->getPosition();
 	   //array of the marked rows positions
 	   uint32_t markedRowsValuesNeededBits=index->markedRowsValuesNeededBits;
+	   if (index->computeStatistics){
+	   		index->statistics->bucketAverageNumberOfMarkedRows+=markedRows.size();
+	   		index->statistics->bucketMarkedRowsArrayAverageSize+=markedRows.size()*markedRowsValuesNeededBits;
+	   	}
+
 	   for (uint64_t i=0;i<markedRows.size();i++){
 		  bitWriter->write(markedRowsValuesNeededBits,markedRowsPositions[i]);
 	   }

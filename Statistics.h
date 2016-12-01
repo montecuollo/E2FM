@@ -18,6 +18,7 @@ public:
 
 	uint64_t originalTextLength;
 	uint64_t textLength;
+	uint64_t numberOfMarkedRows;
 	uint32_t alphabetSize;
 	uint32_t compactAlphabetSize;
 	uint64_t compressedSize;
@@ -25,6 +26,7 @@ public:
 	double  realCompressionRatio;
 	uint64_t headerBitmapSize;
 	uint64_t headerOccurrencesTableSize;
+	uint64_t headerMarkedRowsTableSize;
 	uint64_t headerSize;
 	uint64_t superbuckets;
 	uint64_t buckets;
@@ -40,6 +42,10 @@ public:
 	uint64_t bucketOccurrencesTablesCumulativeSize;
 	uint64_t bucketMarkedRowsTableAverageSize;
 	uint64_t bucketMarkedRowsTablesCumulativeSize;
+	uint64_t bucketAverageCompressedLength;
+	uint64_t bucketAverageNumberOfMarkedRows;
+	uint64_t bucketMarkedRowsArrayAverageSize;
+
 	//Timings
 	uint64_t superAlphabetBuildTime;  //time needed to create the scrambled super alphabet
 	uint64_t superTextBuildTime;      //time needed to create the super-text

@@ -114,14 +114,11 @@ void EFMCollection::loadFastaHeaders(){
  */
 SearchResult *EFMCollection::search (string pattern,bool retrieveSequenceDescriptions){
 
-	//uint64_t rp=getRowPosition(54009,bitReader,bucketEncryptionRandomGenerator);
-
 	std::chrono::time_point<std::chrono::system_clock> startTime,endTime;
 	startTime=std::chrono::system_clock::now();
 	SearchResult *searchResult=new SearchResult();
 	searchResult->pattern=pattern;
-	//if (pattern=="AATGGCGAATAAAAAGCTGC")
-	//	cout <<endl;
+
 	exactMatch(pattern);
 	vector<uint64_t> *occs=locateOccurrences(&allSuperPatternMatches);
 	for (uint64_t occ:*occs){

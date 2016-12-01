@@ -760,7 +760,36 @@ void build(string &fastaFilePath,string &indexFilePath,string &encryptionKeyFile
 	cout <<  "-----------------------------------------------"<<endl;
 	Statistics *stats=efm->getStatistics();
 	cout <<  "Compression ratio: " << stats->compressionRatio << endl;
-	cout <<  "Build time: " << buildTime << " ms" << endl;
+	cout <<  "Index statistics: " <<endl;
+	cout <<  "\tText length: "<<stats->originalTextLength <<endl;
+	cout <<  "\tText length (in the extended alphabet): "<<stats->textLength <<endl;
+	cout <<  "\tNumber of superblocks: "<<stats->superbuckets <<endl;
+	cout <<  "\tNumber of blocks: "<<stats->buckets <<endl;
+    cout <<  "\tNumber of distinct alphabet symbols in collection items: "<< efm->getOriginalSymbols().size()-2 <<endl;
+    cout <<  "\tNumber of marked rows: "<<stats->numberOfMarkedRows <<endl;
+    cout <<  "\tExtended alphabet's order (k) :" << (uint32_t) efm->getSuperAlphabet()->getOrder() <<endl;
+	cout <<  "\tExtended alphabet size: "<<stats->alphabetSize <<endl;
+	cout <<  "\tCompact alphabet size: "<<stats->compactAlphabetSize <<endl;
+	cout <<  "\tHeader bitmap size: "<<stats->headerBitmapSize <<endl;
+	cout <<  "\tHeader occurrences table size: "<<stats->headerOccurrencesTableSize <<endl;
+	cout <<  "\tHeader marked rows table size: "<<stats->headerMarkedRowsTableSize <<endl;
+
+	cout <<  "\tSuperblocks size: "<<efm->getSuperBucketSize() <<endl;
+	cout <<  "\tSuperblocks alphabet average size: "<<stats->superbucketAlphabetAverageSize <<endl;
+	cout <<  "\tSuperblocks bitmap average size: "<<stats->superbucketBitmapAverageSize <<endl;
+	cout <<  "\tSuperblocks occurrences table average size: "<<stats->superbucketOccurrencesTableAverageSize <<endl;
+
+	cout <<  "\tBlocks size: "<< efm->getBucketSize() <<endl;
+	cout <<  "\tBlocks average compressed size: "<< stats->bucketAverageCompressedLength <<endl;
+	cout <<  "\tBlocks alphabet average size: "<<stats->bucketAlphabetAverageSize <<endl;
+	cout <<  "\tAverage number of Bits per character: "<< (uint32_t)Utils::int_log2(stats->bucketAlphabetAverageSize) <<endl;
+	cout <<  "\tBlocks bitmap average size: "<<stats->bucketBitmapAverageSize <<endl;
+	cout <<  "\tBlocks occurrences table average size: "<<stats->bucketOccurrencesTableAverageSize <<endl;
+	cout <<  "\tBlocks average number of marked rows: "<<stats->bucketAverageNumberOfMarkedRows <<endl;
+	cout <<  "\tBlocks average marked rows array size: "<<stats->bucketMarkedRowsArrayAverageSize <<endl;
+
+
+	cout <<  "Build times: " << buildTime << " ms" << endl;
 	cout <<  "\tSuper-alphabet build time: "<<stats->superAlphabetBuildTime <<endl;
 	cout <<  "\tSuper-text build time: "<<stats->superTextBuildTime <<endl;
 	cout <<  "\tSort time: "<<stats->sortTime <<endl;
@@ -1502,6 +1531,7 @@ int main(int argc, char* argv[]) {
 	cout << "|  Compressed and Encrypted Genomic collections indexer  |"<<endl;
 	cout << "+--------------------------------------------------------+"<<endl;
 	cout <<endl;
+
 
 	if (argc<2){
 		cout << "At least the command parameter is needed" << endl;
